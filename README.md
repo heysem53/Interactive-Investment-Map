@@ -20,6 +20,43 @@ The platform combines:
 
 -------------------------------------------------------------
 
+Development Copy and Local Run
+
+This repository (Interactive-Investment-Map) is an independent development copy of the original investment-ai-platform project. It is not connected to the publicly deployed platform described in the Deployment section below, and it must not point to the production backend or database.
+
+Backend (from the backend folder, PowerShell):
+
+powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+python -m uvicorn app.main:app --reload
+
+
+- Set DATABASE_URL in backend/.env, for example:
+  postgresql+psycopg2://postgres:YOUR_PASSWORD@127.0.0.1:5432/investment_db
+  Special characters in the password must be URL-encoded (for example @ becomes %40).
+- On first start with an empty database, the backend imports investment_db_inserts.sql automatically (schema and data).
+- uvicorn --reload does not pick up .env changes. Restart the backend after editing .env.
+- API: http://127.0.0.1:8000 - Swagger: http://127.0.0.1:8000/docs - Health: http://127.0.0.1:8000/api/health
+
+Frontend (from the frontend folder):
+
+powershell
+npm install
+npm run dev
+
+
+- The frontend runs on http://localhost:5173.
+- The backend address is read from VITE_API_URL (default http://127.0.0.1:8000). See frontend/.env.example.
+- If PowerShell blocks npm scripts, run: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned (or use npm.cmd).
+- CORS allows localhost:5173 by default. Use the CORS_ORIGINS environment variable (comma-separated) for other origins.
+
+Never commit .env files or credentials. Only .env.example files belong in the repository.
+
+-------------------------------------------------------------
+
 Contents
 
 - [Overview](overview)
