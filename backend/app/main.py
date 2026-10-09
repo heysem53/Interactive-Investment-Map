@@ -5,16 +5,23 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
+from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy import text
 
 from .database import engine
 from .services.opportunity_service import get_opportunity_by_code
 from .ai.router import router as ai_router
+from .auth.middleware import authentication_middleware
+from .auth.router import router as auth_router
 
 
 app = FastAPI(
     title="Investment AI API",
     version="2.0.0",
+    # Documentation only: adds the "Authorize" button to /docs.
+    # Enforcement is done by authentication_middleware below.
+    dependencies=[Depends(HTTPBearer(auto_error=False))],
 )
 
 
@@ -120,7 +127,6 @@ seed_database()
 default_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://investment-ai-frontend.onrender.com",
 ]
 
 configured_origins = os.getenv("CORS_ORIGINS", "")
@@ -133,6 +139,12 @@ allowed_origins = (
     ]
     if configured_origins
     else default_origins
+)
+
+# Added before CORS so that CORS wraps it and 401 responses carry CORS headers.
+app.add_middleware(
+    BaseHTTPMiddleware,
+    dispatch=authentication_middleware,
 )
 
 app.add_middleware(
@@ -149,6 +161,7 @@ app.add_middleware(
 # ------------------------------------------------------------------
 
 app.include_router(ai_router)
+app.include_router(auth_router)
 
 
 # ------------------------------------------------------------------

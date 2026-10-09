@@ -39,6 +39,8 @@ python -m uvicorn app.main:app --reload
   Special characters in the password must be URL-encoded (for example @ becomes %40).
 - To populate an empty database, either import investment_db_inserts.sql with psql, or set AUTO_SEED_DB=true in backend/.env so the backend imports it on first start (only if the investment_opportunities table does not exist). Auto-import is off by default.
 - Diagnostic endpoints (/api/db-test, /api/db-stats, /api/cache/clear) return 404 unless ENABLE_DEBUG_ENDPOINTS=true is set.
+- Authentication: every /api route except /api/health and /api/auth/login requires a Bearer token. Set JWT_SECRET in backend/.env (see .env.example), then run python create_admin.py once from the backend folder to create the users table and the first administrator. Administrators create further accounts through POST /api/users (there is no self-registration).
+- Auth endpoints: POST /api/auth/login, GET /api/auth/me, POST /api/auth/change-password, GET/POST /api/users and PATCH /api/users/{id}/active (admin only). In /docs, log in, then use the Authorize button with the returned token.
 - uvicorn --reload does not pick up .env changes. Restart the backend after editing .env.
 - API: http://127.0.0.1:8000 - Swagger: http://127.0.0.1:8000/docs - Health: http://127.0.0.1:8000/api/health
 
