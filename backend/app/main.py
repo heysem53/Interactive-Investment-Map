@@ -1,6 +1,9 @@
+import logging
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -13,6 +16,25 @@ app = FastAPI(
     title="Investment AI API",
     version="2.0.0",
 )
+
+
+# ------------------------------------------------------------------
+# Log the real cause behind 5xx errors in the server console
+# ------------------------------------------------------------------
+
+logger = logging.getLogger("uvicorn.error")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def log_http_exception(request: Request, exc: StarletteHTTPException):
+    if exc.status_code >= 500 and exc.__cause__ is not None:
+        logger.error(
+            "%s %s failed",
+            request.method,
+            request.url.path,
+            exc_info=exc.__cause__,
+        )
+    return await http_exception_handler(request, exc)
 
 
 # ------------------------------------------------------------------
