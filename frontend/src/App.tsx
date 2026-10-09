@@ -34,28 +34,9 @@ import OpportunityAnalysis from "./pages/AIAnalysis/OpportunityAnalysis";
 
 // Other Pages
 import UserProfiles from "./pages/UserProfiles";
-import Calendar from "./pages/Calendar";
 import Blank from "./pages/Blank";
 import ApiTest from "./pages/ApiTest";
 import NotFound from "./pages/OtherPage/NotFound";
-
-// Forms
-import FormElements from "./pages/Forms/FormElements";
-
-// Tables
-import BasicTables from "./pages/Tables/BasicTables";
-
-// UI Elements
-import Videos from "./pages/UiElements/Videos";
-import Images from "./pages/UiElements/Images";
-import Alerts from "./pages/UiElements/Alerts";
-import Badges from "./pages/UiElements/Badges";
-import Avatars from "./pages/UiElements/Avatars";
-import Buttons from "./pages/UiElements/Buttons";
-
-// Charts
-import LineChart from "./pages/Charts/LineChart";
-import BarChart from "./pages/Charts/BarChart";
 
 
 export default function App() {
@@ -212,69 +193,21 @@ export default function App() {
             element={<UserProfiles />}
           />
 
-          <Route
-            path="/calendar"
-            element={<Calendar />}
-          />
 
           <Route
             path="/blank"
             element={<Blank />}
           />
 
-          {/* Forms */}
-          <Route
-            path="/form-elements"
-            element={<FormElements />}
-          />
 
-          {/* Tables */}
-          <Route
-            path="/basic-tables"
-            element={<BasicTables />}
-          />
 
-          {/* UI Elements */}
-          <Route
-            path="/alerts"
-            element={<Alerts />}
-          />
 
-          <Route
-            path="/avatars"
-            element={<Avatars />}
-          />
 
-          <Route
-            path="/badge"
-            element={<Badges />}
-          />
 
-          <Route
-            path="/buttons"
-            element={<Buttons />}
-          />
 
-          <Route
-            path="/images"
-            element={<Images />}
-          />
 
-          <Route
-            path="/videos"
-            element={<Videos />}
-          />
 
-          {/* Charts */}
-          <Route
-            path="/line-chart"
-            element={<LineChart />}
-          />
 
-          <Route
-            path="/bar-chart"
-            element={<BarChart />}
-          />
 
         </Route>
 
