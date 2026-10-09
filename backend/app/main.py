@@ -1,7 +1,7 @@
 import logging
 import os
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +25,22 @@ app = FastAPI(
 logger = logging.getLogger("uvicorn.error")
 
 
+def _env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+# Diagnostic endpoints are disabled unless explicitly enabled in the environment.
+ENABLE_DEBUG_ENDPOINTS = _env_flag("ENABLE_DEBUG_ENDPOINTS")
+
+# Importing investment_db_inserts.sql on startup is opt-in.
+AUTO_SEED_DB = _env_flag("AUTO_SEED_DB")
+
+
+def require_debug_endpoints():
+    if not ENABLE_DEBUG_ENDPOINTS:
+        raise HTTPException(status_code=404, detail="Not Found")
+
+
 @app.exception_handler(StarletteHTTPException)
 async def log_http_exception(request: Request, exc: StarletteHTTPException):
     if exc.status_code >= 500 and exc.__cause__ is not None:
@@ -45,6 +61,9 @@ from pathlib import Path
 
 
 def seed_database():
+    if not AUTO_SEED_DB:
+        return
+
     seed_file = (
         Path(__file__).resolve().parents[2]
         / "investment_db_inserts.sql"
@@ -190,16 +209,11 @@ def root():
 @app.get("/api/health")
 def health():
     try:
-        database = fetch_one(
-            """
-            SELECT current_database() AS database
-            """
-        )
+        fetch_one("SELECT 1 AS ok")
 
         return {
             "status": "ok",
             "message": "API is healthy",
-            "database": database["database"],
         }
 
     except Exception:
@@ -213,7 +227,11 @@ def health():
 # Database Test
 # ------------------------------------------------------------------
 
-@app.get("/api/db-test")
+@app.get(
+    "/api/db-test",
+    dependencies=[Depends(require_debug_endpoints)],
+    include_in_schema=ENABLE_DEBUG_ENDPOINTS,
+)
 def db_test():
     try:
         row = fetch_one(
@@ -241,7 +259,11 @@ def db_test():
 # Database Statistics
 # ------------------------------------------------------------------
 
-@app.get("/api/db-stats")
+@app.get(
+    "/api/db-stats",
+    dependencies=[Depends(require_debug_endpoints)],
+    include_in_schema=ENABLE_DEBUG_ENDPOINTS,
+)
 def db_stats():
     tables = [
         "investment_opportunities",
@@ -826,7 +848,11 @@ def get_ai_opportunity_data(
 # Cache Compatibility Endpoint
 # ------------------------------------------------------------------
 
-@app.get("/api/cache/clear")
+@app.get(
+    "/api/cache/clear",
+    dependencies=[Depends(require_debug_endpoints)],
+    include_in_schema=ENABLE_DEBUG_ENDPOINTS,
+)
 def clear_sheet_cache():
     return {
         "status": "ok",

@@ -37,7 +37,8 @@ python -m uvicorn app.main:app --reload
 - Set DATABASE_URL in backend/.env, for example:
   postgresql+psycopg2://postgres:YOUR_PASSWORD@127.0.0.1:5432/investment_db
   Special characters in the password must be URL-encoded (for example @ becomes %40).
-- On first start with an empty database, the backend imports investment_db_inserts.sql automatically (schema and data).
+- To populate an empty database, either import investment_db_inserts.sql with psql, or set AUTO_SEED_DB=true in backend/.env so the backend imports it on first start (only if the investment_opportunities table does not exist). Auto-import is off by default.
+- Diagnostic endpoints (/api/db-test, /api/db-stats, /api/cache/clear) return 404 unless ENABLE_DEBUG_ENDPOINTS=true is set.
 - uvicorn --reload does not pick up .env changes. Restart the backend after editing .env.
 - API: http://127.0.0.1:8000 - Swagger: http://127.0.0.1:8000/docs - Health: http://127.0.0.1:8000/api/health
 

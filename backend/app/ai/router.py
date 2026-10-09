@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from .schemas import AIAnalysisResult
@@ -7,6 +9,8 @@ from ..services.opportunity_service import (
     get_opportunity_by_code,
 )
 
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter(
     prefix="/api/ai",
@@ -76,12 +80,12 @@ def analyze_investment_opportunity(
         raise
 
     except Exception as exc:
-        print(
-            "ERROR during AI analysis:",
-            str(exc),
+        logger.exception(
+            "AI analysis failed for opportunity %s",
+            opportunity_code,
         )
 
         raise HTTPException(
             status_code=500,
-            detail=f"AI analysis failed: {str(exc)}",
+            detail="AI analysis failed",
         )
