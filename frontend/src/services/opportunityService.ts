@@ -3,10 +3,11 @@ import type {
   OpportunityStatus,
 } from "../types/opportunity";
 
-const API_BASE_URL =
-  window.location.hostname === "investment-ai-frontend.onrender.com"
-    ? "https://investment-ai-platform.onrender.com"
-    : "http://127.0.0.1:8000";
+// عنوان الخلفية يُقرأ من متغير البيئة VITE_API_URL (انظر frontend/.env.example)
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
+
 /* =========================================================
    جميع الفرص من FastAPI
 ========================================================= */
